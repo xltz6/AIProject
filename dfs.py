@@ -26,7 +26,7 @@ path = []
 #global variable for visited set
 visited = []
 #global variable set for record the visited node and use for tracing back
-traceback = []
+nodes = []
 #global variable for record the row number of dirty position
 newrow = 0
 #global variable for record the column number of dirty position
@@ -64,7 +64,7 @@ def dfs(grid, startrow, startcol):
         return
     #add visited position and traced path
     visited.append([startrow, startcol])
-    traceback.append([startrow, startcol])
+    nodes.append([startrow, startcol])
     #visited 5 state according to tie-breaking rule: up, left, stay for sucking, right, down
     for [row,col] in [[r,c] for [r,c] in [startrow-1,startcol],[startrow,startcol-1],[startrow, startcol],[startrow,startcol+1],[startrow+1,startcol] if 1 <= r <= 4 and 1 <= c <= 4 and ([r,c] not in visited or [r,c] == visited[-1])]:
         print(row,col)
@@ -95,12 +95,13 @@ def dfs(grid, startrow, startcol):
             #go to states that we don't need
             dfs(grid, row, col)
     if found == 0:  
-        #print(traceback)
+        
         #trace back if it has all surround position visited
-        traceback.pop()
-        if traceback:
-            path.append(traceback[-1])
+        path.pop()
+        if path:
+            nodes.append(path[-1])
     #print(traceback.pop())
+    #print(traceback)   
     return 
 
         
@@ -117,7 +118,7 @@ for row in range(1,5):
                 
 #call clean function
 dfs_clean(grid,dirty, 3, 2)
-
+print(nodes)
 #print path
 print 'The solution path should be :',path 
 #print path cost
