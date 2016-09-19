@@ -132,13 +132,14 @@ def astar_clean():
         #g.dirt_count = 0 Success
         
         #itterate through successors
-        for n in neighbors.values():
+        for n in neighbors.keys():
             if(g.dirt_count == 0): #reached the goal
                 break;
-            #print n 
-            if neighbors['UP'] 
-            n.g = node.g + 
-            
+            if n == "UP" or n == "DOWN":
+                neighbors[n].g += 1.3
+            elif n == "LEFT" or n == "RIGHT":
+                neighbors[n].g += 1
+                
     #print next_node
     #print g.start
     #print g.room[(1,1)]
