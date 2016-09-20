@@ -64,7 +64,7 @@ def dfs(grid, startrow, startcol):
         return
     #add visited position and traced path
     visited.append([startrow, startcol])
-    nodes.append([startrow, startcol])
+
     #visited 5 state according to tie-breaking rule: up, left, stay for sucking, right, down
     for [row,col] in [[r,c] for [r,c] in [startrow-1,startcol],[startrow,startcol-1],[startrow, startcol],[startrow,startcol+1],[startrow+1,startcol] if 1 <= r <= 4 and 1 <= c <= 4 and ([r,c] not in visited or [r,c] == visited[-1])]:
         print(row,col)
@@ -75,6 +75,7 @@ def dfs(grid, startrow, startcol):
                 if(grid[(row, col)] == 1):
                     #if it is dirty,staying for sucking 
                     path.append([row,col])
+                    nodes.append([row, col])
                     #chang position to clean
                     grid[(row, col)] = 0
                     #set found dirty flag to 1
@@ -88,6 +89,7 @@ def dfs(grid, startrow, startcol):
             else:
                 #if current node has up, left choices
                 path.append([row,col])
+                nodes.append([row, col])
                 dfs(grid,row, col)
         
                 
@@ -118,7 +120,12 @@ for row in range(1,5):
                 
 #call clean function
 dfs_clean(grid,dirty, 3, 2)
-print(nodes)
+#print first 10 nodes to expand
+n = 0
+print "the first 10 nodes to expand:"
+while n < 10:
+    print(nodes[n])
+    n += 1
 #print path
 print 'The solution path should be :',path 
 #print path cost
@@ -129,9 +136,9 @@ while i < len(path)-1:
     b = path[i+1]
     if (a[0] - b[0]) == 0:
         if (a[1] - b[1]) != 0:
-            cost += 1.3
+            cost += 1
     else:
-        cost += 1
+        cost += 1.3
     i += 1
 print 'The path cost should be:',cost
 
