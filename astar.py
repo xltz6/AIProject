@@ -9,7 +9,6 @@ class Room:
     dirt = 0
     g = 0
     f = 0
-    closed = False
     
     def __init__(self,room):
         self.room = room
