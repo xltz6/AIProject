@@ -145,7 +145,7 @@ def backtrack(g):
     end = g.closelist.pop()
     print "start -> %s"%g.start.room
     for n in g.closelist:
-        path.append([n.parent,n])
+        path.append(n)
         
     return path
         
@@ -174,7 +174,8 @@ def astar():
 #            print str(node.room) + " is cleaned"
             g.rooms[node.room[0],node.room[1]].dirt = 0
             g.dirt_count -= 1
-#            print "Dirt count = %d" % g.dirt_count
+            
+            print "Dirt count = %d" % g.dirt_count + " from %s"% node.room
         
         #get neighbors
         neighbors = get_neighbors(node.room, g)
@@ -193,11 +194,13 @@ def astar():
             h = g.dirt_count
                 
             if n == "UP" or n == "DOWN":
-                neighbors[n].f = (node.f + 1.3 + h)
-                neighbors[n].g = node.f + 1.3
+                #neighbors[n].f = (node.f + 1.3 + h)
+                #neighbors[n].g = node.g + 1.3
+                neighbors[n].f = node.f + 1.3
             if n == "LEFT" or n == "RIGHT":
-                neighbors[n].f = (node.f + 1 + h)
-                neighbors[n].g =node.f + 1 
+                #neighbors[n].f = (node.f + 1 + h)
+                #neighbors[n].g =node.g + 1 
+                neighbors[n].f = node.f + 1
             
             add_to_list = True
             
