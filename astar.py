@@ -1,10 +1,5 @@
-#import random
-from copy import deepcopy
-import time
-from functools import wraps
-
 class Room:
-    parent = []
+    parent = -1
     room = []
     dirt = 0
     g = 0
@@ -14,35 +9,22 @@ class Room:
         self.room = room
     
     def __str__(self):
-        return str(self.room)
-    __repr__ = __str__
+        return str(self.room) + " Dirty:" + str(bool(self.dirt)) 
 
 class Grid:
     rooms = {} #Should be a dictionary (x,y):Node
     width = 0
     height = 0
     dirt_count = 7
-    start = 0
-    stop = 0
+    start = []
     closelist = []
     openlist = []
     
     def __init__(self, width, height):
         self.width = width
         self.height = height
+    
 
-#timer
-def fn_timer(function):
-    @wraps(function)
-    def function_timer(*args, **kwargs):
-        t0 = time.time()
-        result = function(*args, **kwargs)
-        t1 = time.time()
-        print ("Total time running %s: %s ms" %
-               (function.func_name, str((t1-t0)*1000))
-               )
-        return result
-    return function_timer
 
 #generate a Grid obj, inits each room to 0 with the given dimensions and returns it
 def generate_grid(height, width):
@@ -74,6 +56,7 @@ def display_grid(grid):
         for column in range(1,width+1):
                 print [row,column], ':', grid.rooms[(row, column)]
 
+past_states = []
     
 #g - +1:left or right, +1.3:up or down, 0:suck
 #h - +number of dirty rooms
@@ -84,60 +67,25 @@ def display_grid(grid):
 #find the node with the least cost
 
 def get_neighbors(r_coord, g):
-    neighbors = {}
-    #print neighbors
+    neighbors = {"UP" : [], "DOWN" : [], "LEFT" : [], "RIGHT" : []}
+    
     rx = r_coord[0]
     ry = r_coord[1]
-    room = 0
-    #print r_coord
+    
     #UP: r - 1
-    if rx != 1:
-        room = deepcopy(g.rooms[rx-1,ry])
-        g.rooms[rx-1,ry].parent = [rx, ry]
-        room.parent = [rx, ry]
-        #print g.rooms[rx-1,ry].parent
-        neighbors["UP"] = room
+    if r_coord[0] != 1:
+        neighbors["UP"] = g.rooms[rx-1,ry]
     #DOWN: r+1
-    if rx != g.height:
-        room = deepcopy(g.rooms[rx+1,ry])
-        g.rooms[rx+1,ry].parent = [rx, ry]
-        room.parent = [rx, ry]
-        #print g.rooms[rx+1,ry].parent
-        neighbors["DOWN"] = room
+    if r_coord[0] != g.height:
+        neighbors["DOWN"] = g.rooms[rx+1,ry]
     #LEFT: c-1
-    if ry != 1:
-        room = deepcopy(g.rooms[rx,ry-1])
-        g.rooms[rx,ry-1].parent = [rx, ry]
-        room.parent = [rx, ry]
-        #print g.rooms[rx,ry-1].parent
-        neighbors["LEFT"] = room
+    if r_coord[1] != 1:
+        neighbors["LEFT"] = g.rooms[rx,ry-1]
     #RIGHT: c+1
-    if ry != g.width:
-        room = deepcopy(g.rooms[rx,ry+1])
-        g.rooms[rx,ry+1].parent = [rx, ry]
-        room.parent = [rx, ry]
-        #print g.rooms[rx,ry+1].parent
-        neighbors["RIGHT"] = room
+    if r_coord[1] != g.width:
+        neighbors["RIGHT"] = g.rooms[rx,ry+1]
     
     return neighbors
-
-def by_cost(a,b):
-    if a.f < b.f: #a cheaper b
-        #print str(a.room) + " cheaper than " + str(b.room)
-        return 1
-    elif a.f == b.f: #cost =
-        #print str(a.room) + " cost = cost of " + str(b.room)
-        if a.room[0] == b.room[0]: #a,b same row
-            if a.room[1] < b.room[1]: # dif cols
-                return 1 #don't switch
-            else:
-                return -1 #do switch
-        elif a.room[0] > b.room[0]: #dif rows
-            return -1
-        else:
-            return 1
-    
-    return -1
 
 def backtrack(g):
     path = []
@@ -147,26 +95,18 @@ def backtrack(g):
         path.append(n)
         
     return path
-        
 
-@fn_timer
-def astar():
+def astar_clean():
     print "A* Search:\n"
+    #print "This only executes when %s is executed rather than imported" % __file__
     g = generate_grid(4,4)
-    g.start = Room([3,2])
-    g.start.f = 0
+    g.start = Room([3,3])
     g.openlist.append(g.start)
     
-    #HW related data
-    count = 1
-    
-    while len(g.openlist) != 0 and g.dirt_count > 0:
+    #while the open list is not empty
+    while (len(g.openlist) != 0 and g.dirt_count > 0):
         #pop q off the open list
         node = g.openlist.pop()
-        
-        #clean if dirty
-        if node.dirt == 1:
-            node.dirt = 0
         
         #if there is dirt suck
         if g.rooms[node.room[0],node.room[1]].dirt == 1:
@@ -179,20 +119,15 @@ def astar():
         #get neighbors
         neighbors = get_neighbors(node.room, g)
         
-        #Print first 10 expanded nodes
-        if count <= 10:
-            print "Node %s" % node.room + " was expanded"
+        #TEST
+        #g.dirt_count = 0 Success
         
         #itterate through successors
         for n in neighbors.keys():
-            if g.dirt_count == 0: #reached the goal
-                break; 
-                
-            #h = g.dirt_count
-
-            h = g.dirt_count
-                
+            if(g.dirt_count == 0): #reached the goal
+                break;
             if n == "UP" or n == "DOWN":
+<<<<<<< HEAD
                 #neighbors[n].f = (node.f + 1.3 + h)
                 #neighbors[n].g = node.g + 1.3
                 neighbors[n].f = node.f + 1.3
@@ -223,19 +158,20 @@ def astar():
 
             if add_to_list == True:
                 g.openlist.append(deepcopy(neighbors[n]))
+=======
+                neighbors[n].g += 1.3
+            elif n == "LEFT" or n == "RIGHT":
+                neighbors[n].g += 1
+                
+    #print next_node
+    #print g.start
+    #print g.room[(1,1)]
+    #display_grid(g)
+    #astar_clean(grid, 3, 2)
+>>>>>>> parent of 10220f7... Final commit. It seems wrong but I'm done.
     
-        g.openlist.sort(by_cost)         
-        g.closelist.append(deepcopy(node))
-        #end while
-        
-    backtrace = backtrack(g)
-    print backtrace
-    print "Cost: %s"%backtrace[-1][1].g
-        #TEST
-#        print "\t\t" + str(node.room) + " was added to the close list"
-#    print "closelist = %s"%g.closelist
 
 
 #Main function
 if __name__ == '__main__':
-    astar()
+    astar_clean()
