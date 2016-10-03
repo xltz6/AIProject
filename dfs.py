@@ -1,20 +1,30 @@
-#generate 4*4 grid
+import time
+
+#generate 5*6 grid
 grid = {}
-for row in range(1,5):
-    for column in range(1,5):
+for row in range(1,6):
+    for column in range(1,7):
         grid[(row, column)] = 0
         
 #set dirty position
-grid[(1,2)] = 1
-grid[(1,4)] = 1
-grid[(2,2)] = 1
-grid[(2,3)] = 1
-grid[(3,1)] = 1
-grid[(4,2)] = 1
-grid[(4,4)] = 1
+grid[(1, 2)] = 1
+grid[(1, 4)] = 1
+grid[(1, 6)] = 1
+grid[(2, 1)] = 1
+grid[(2, 3)] = 1
+grid[(2, 4)] = 1
+grid[(3, 1)] = 1
+grid[(3, 5)] = 1
+grid[(3, 6)] = 1
+grid[(4, 2)] = 1
+grid[(4, 4)] = 1
+grid[(5, 3)] = 1
+grid[(5, 4)] = 1
+grid[(5, 6)] = 1
+
 #print out the grid 
-for row in range(1,5):
-    for column in range(1,5):
+for row in range(1,6):
+    for column in range(1,7):
             print [row,column],':',grid[(row, column)]
 
 #global variable if find the dirty set it to 1 and when state chages set it back to 0 
@@ -66,8 +76,8 @@ def dfs(grid, startrow, startcol):
     visited.append([startrow, startcol])
 
     #visited 5 state according to tie-breaking rule: up, left, stay for sucking, right, down
-    for [row,col] in [[r,c] for [r,c] in [startrow-1,startcol],[startrow,startcol-1],[startrow, startcol],[startrow,startcol+1],[startrow+1,startcol] if 1 <= r <= 4 and 1 <= c <= 4 and ([r,c] not in visited or [r,c] == visited[-1])]:
-        print(row,col)
+    for [row,col] in [[r,c] for [r,c] in [startrow-1,startcol],[startrow,startcol-1],[startrow, startcol],[startrow,startcol+1],[startrow+1,startcol] if 1 <= r <= 5 and 1 <= c <= 6 and ([r,c] not in visited or [r,c] == visited[-1])]:
+        print(row, col)
         if found == 0:
             #if for current node, there is no up state and left state choice right now
             if(row == startrow and col == startcol):
@@ -86,12 +96,14 @@ def dfs(grid, startrow, startcol):
                     print("dirty place")
                     print(newrow, newcol)
                     print("-----------")
+
             else:
                 #if current node has up, left choices
-                path.append([row,col])
-                nodes.append([row, col])
-                dfs(grid,row, col)
-        
+                if([row,col] not in visited):
+                    path.append([row,col])
+                    nodes.append([row, col])
+                    dfs(grid,row, col)
+
                 
         if found == 1:
             #go to states that we don't need
@@ -103,7 +115,8 @@ def dfs(grid, startrow, startcol):
         if path:
             nodes.append(path[-1])
     #print(traceback.pop())
-    #print(traceback)   
+    #print(traceback)
+
     return 
 
         
@@ -112,14 +125,16 @@ def dfs(grid, startrow, startcol):
 
 #counting how many dirty positions in the grid
 dirty = 0
-for row in range(1,5):
-        for column in range(1,5):
+for row in range(1,6):
+        for column in range(1,7):
             if(grid[(row, column)]) == 1 :
                 dirty = dirty + 1
 
-                
+start_time = time.time()
 #call clean function
 dfs_clean(grid,dirty, 3, 2)
+
+
 #print first 10 nodes to expand
 n = 0
 print "the first 10 nodes to expand:"
@@ -142,4 +157,4 @@ while i < len(path)-1:
     i += 1
 print 'The path cost should be:',cost
 
-
+print("--- %s seconds ---" % (time.time() - start_time))
